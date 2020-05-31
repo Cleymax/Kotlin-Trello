@@ -50,7 +50,7 @@ interface TrelloApi {
 
     fun getActionCard(actionId: String): Card?
 
-    fun getActionEntities(actionId: String): Array<Entity?>?
+    fun getActionEntities(actionId: String): Array<Entity>?
 
     fun getActionList(actionId: String): TList?
 

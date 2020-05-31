@@ -112,7 +112,7 @@ class TrelloApiImpl(private val apiKey: String, private val token: String) : Tre
 
     override fun getActionCard(actionId: String): Card? = get(Card::class.java, "actions/$actionId/card")
 
-    override fun getActionEntities(actionId: String): Array<Entity?>? =
+    override fun getActionEntities(actionId: String): Array<Entity>? =
         get(Array<Card?>::class.java, "actions/$actionId/entities")
 
     override fun getActionList(actionId: String): TList? = get(TList::class.java, "actions/$actionId/list")

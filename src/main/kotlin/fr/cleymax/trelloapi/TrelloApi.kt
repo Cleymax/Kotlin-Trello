@@ -84,7 +84,7 @@ interface TrelloApi {
 
     fun addReactionToComment(cardId: String, unified: String): AddReactionToCommentResult?
 
-    fun updateComment(cardId: String, commentActionId: String, comment: String, callback: () -> Action): Action
+    fun updateComment(cardId: String, commentActionId: String, comment: String): Action?
 
     fun addAttachmentToCard(cardId: String, file: File)
 
@@ -92,45 +92,45 @@ interface TrelloApi {
 
     fun deleteAttachment(cardId: String, attachmentId: String)
 
-    fun addMemberToCard(cardId: String, memberId: String): Array<Member>
+    fun addMemberToCard(cardId: String, memberId: String): Array<Member>?
 
-    fun removeMemberToCard(cardId: String, memberId: String): Array<Member>
+    fun removeMemberToCard(cardId: String, memberId: String): Array<Member>?
 
-    fun updateCard(card: Card): Card
+    fun updateCard(card: Card): Card?
 
-    fun getList(listId: String): TList
+    fun getList(listId: String): TList?
 
-    fun getListCards(listId: String): Array<Card>
+    fun getListCards(listId: String): Array<Card>?
 
     fun deleteList(listId: String)
 
-    fun getCheckList(checkListId: String): CheckList
+    fun getCheckList(checkListId: String): CheckList?
 
-    fun getCardCheckLists(cardId: String): Array<CheckList>
+    fun getCardCheckLists(cardId: String): Array<CheckList>?
 
-    fun getCheckItems(checkListId: String): Array<CheckItem>
+    fun getCheckItems(checkListId: String): Array<CheckItem>?
 
-    fun createCheckList(cardId: String, checkList: CheckList): CheckList
+    fun createCheckList(cardId: String, checkList: CheckList): CheckList?
 
-    fun createCheckItem(cardId: String, checkItem: CheckItem): CheckItem
+    fun createCheckItem(cardId: String, checkItem: CheckItem): CheckItem?
 
-    fun getOrganization(organizationId: String): Organization
+    fun getOrganization(organizationId: String): Organization?
 
-    fun getOrganizationBoards(organizationId: String): Array<Board>
+    fun getOrganizationBoards(organizationId: String): Array<Board>?
 
-    fun getOrganizationMembers(organizationId: String): Array<Member>
+    fun getOrganizationMembers(organizationId: String): Array<Member>?
 
-    fun createOrganization(organization: Organization): Organization
+    fun createOrganization(organization: Organization): Organization?
 
-    fun getLabel(labelId: String): Label
+    fun getLabel(labelId: String): Label?
 
-    fun createLabel(label: Label): Label
+    fun createLabel(label: Label): Label?
 
-    fun updateLabel(label: Label): Label
+    fun updateLabel(label: Label): Label?
 
     fun deleteLabel(labelId: String)
 
-    fun getMember(): Member
+    fun getMember(): Member?
 
     fun getMember(username: String = "me"): Member?
 

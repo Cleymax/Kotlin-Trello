@@ -15,6 +15,7 @@ dependencies {
     testImplementation("junit:junit:4.13")
     api("com.google.code.gson:gson:2.8.6")
     api("org.apache.httpcomponents:httpclient:4.5.12")
+    api("org.apache.httpcomponents:httpmime:4.5.12")
 }
 
 tasks {

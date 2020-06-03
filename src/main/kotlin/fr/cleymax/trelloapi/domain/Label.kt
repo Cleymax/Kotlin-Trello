@@ -3,12 +3,14 @@ package fr.cleymax.trelloapi.domain
 import com.google.gson.annotations.SerializedName
 
 data class Label(
-    val id: String,
+    val id: String?,
     @SerializedName("idBoard")
     val bordId: String,
     val name: String,
     val color: String
 ) {
+    constructor(boardId: String, name: String, color: String) : this(null, boardId, name, color)
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

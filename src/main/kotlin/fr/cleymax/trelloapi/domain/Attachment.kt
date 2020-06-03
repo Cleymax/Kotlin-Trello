@@ -4,19 +4,26 @@ import com.google.gson.annotations.SerializedName
 import java.util.*
 
 data class Attachment(
-    val id: String,
-    val name: String,
+    val id: String?,
+    val name: String?,
     val bytes: Int?,
-    val date: Date,
+    val date: Date?,
     @SerializedName("idMember")
-    val memberId: String,
-    val isUpload: Boolean,
-    val mimeType: String,
-    val previews: Array<Preview>,
+    val memberId: String?,
+    val isUpload: Boolean?,
+    val mimeType: String?,
+    val previews: Array<Preview>?,
     val url: String,
-    val pos: Int,
+    val pos: Int?,
     val edgeColor: String?
 ) {
+
+    constructor(name: String?, url: String) :
+            this(null, name, null, null, null, null, null, null, url, null, null)
+
+    constructor(url: String) :
+            this(null, url)
+
 
     data class Preview(
         val width: Int,
@@ -58,6 +65,6 @@ data class Attachment(
     override fun hashCode(): Int = id.hashCode()
 
     override fun toString(): String =
-        "Attachment(id='$id', name='$name', bytes=$bytes, date=$date, memberId='$memberId', isUpload=$isUpload, mimeType='$mimeType', previews=${previews.contentToString()}, url='$url')"
+        "Attachment(id='$id', name='$name', bytes=$bytes, date=$date, memberId='$memberId', isUpload=$isUpload, mimeType='$mimeType', previews=${previews!!.contentToString()}, url='$url')"
 
 }

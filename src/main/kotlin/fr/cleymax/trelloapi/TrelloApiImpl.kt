@@ -10,13 +10,14 @@ import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.*
 import org.apache.http.entity.ByteArrayEntity
 import org.apache.http.entity.ContentType
+import org.apache.http.entity.mime.MultipartEntityBuilder
+import org.apache.http.entity.mime.content.FileBody
+import org.apache.http.entity.mime.content.StringBody
 import org.apache.http.impl.client.HttpClientBuilder
 import org.apache.http.util.EntityUtils
 import java.io.File
 import java.lang.reflect.Type
 import java.net.URLEncoder
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 
 
 class TrelloApiImpl(private val apiKey: String, private val token: String) : TrelloApi {
@@ -127,15 +128,15 @@ class TrelloApiImpl(private val apiKey: String, private val token: String) : Tre
 
     override fun getCard(cardId: String): Card? = get(Card::class.java, "cards/$cardId")
 
-    override fun getCardActions(cardId: String): Array<Card?>? = get(Array<Card?>::class.java, "cards/$cardId/actions")
+    override fun getCardActions(cardId: String): Array<Card>? = get(Array<Card?>::class.java, "cards/$cardId/actions")
 
-    override fun getCardAttachments(cardId: String): Array<Attachment?>? =
+    override fun getCardAttachments(cardId: String): Array<Attachment>? =
         get(Array<Attachment?>::class.java, "cards/$cardId/attachments")
 
     override fun getCardAttachment(cardId: String, attachmentId: String): Attachment? =
         get(Attachment::class.java, "cards/$cardId/attachments/$attachmentId")
 
-    override fun getCardMembers(cardId: String): Array<Member?>? =
+    override fun getCardMembers(cardId: String): Array<Member>? =
         get(Array<Member?>::class.java, "cards/$cardId/members")
 
     override fun getCardBoard(cardId: String): Board? =
@@ -156,107 +157,125 @@ class TrelloApiImpl(private val apiKey: String, private val token: String) : Tre
     override fun addLabelToCard(cardId: String, labelId: String): Array<String>? =
         post(Array<String>::class.java, "cards/$cardId/idLabels", pairOf("value", labelId))
 
-    override fun addCommentToCard(cardId: String, comment: String) : Action? =
+    override fun addCommentToCard(cardId: String, comment: String): Action? =
         post(Action::class.java, "cards/$cardId/actions/comments", pairOf("text", comment))
 
     override fun addReactionToComment(cardId: String, unified: String): AddReactionToCommentResult? =
         post(AddReactionToCommentResult::class.java, "actions/$cardId/reactions", pairOf("unified", unified))
 
+    override fun removeCoverToCard(cardId: String): Card? =
+        put(Card::class.java, "cards/$cardId", pairOf("idAttachmentCover", ""))
 
-    override fun updateComment(
-        cardId: String,
+    override fun addCoverToCard(cardId: String, attachmentId: String): Card? =
+        put(Card::class.java, "cards/$cardId", pairOf("idAttachmentCover", attachmentId))
+
+    override fun editComment(
         commentActionId: String,
         comment: String
-    ): Action? {
-        TODO("Not yet implemented")
-    }
+    ): Action? =
+        put(Action::class.java, "actions/$commentActionId", pairOf("text", comment))
 
-    override fun addAttachmentToCard(cardId: String, file: File) {
-        TODO("Not yet implemented")
-    }
+    override fun addAttachmentToCard(cardId: String, file: File): Attachment? =
+        post(Attachment::class.java, "cards/$cardId/attachments", file)
 
-    override fun addAttachmentToCard(cardId: String, url: String) {
-        TODO("Not yet implemented")
-    }
+    override fun addAttachmentToCard(cardId: String, url: String): Attachment? =
+        post(Attachment::class.java, "cards/$cardId/attachments", Attachment(url))
 
-    override fun deleteAttachment(cardId: String, attachmentId: String) {
-        TODO("Not yet implemented")
-    }
+    override fun addAttachmentToCard(cardId: String, attachment: Attachment): Attachment? =
+        post(Attachment::class.java, "cards/$cardId/attachments", attachment)
 
-    override fun addMemberToCard(cardId: String, memberId: String): Array<Member>? {
-        TODO("Not yet implemented")
-    }
+    override fun deleteAttachment(cardId: String, attachmentId: String): Any? =
+        delete(Any::class.java, "cards/$cardId/attachments/$attachmentId")
 
-    override fun removeMemberToCard(cardId: String, memberId: String): Array<Member>? {
-        TODO("Not yet implemented")
-    }
+    override fun editAttachment(cardId: String, attachmentId: String, name: String): Attachment? =
+        put(Attachment::class.java, "cards/$cardId/attachments/$attachmentId", pairOf("name", name))
 
-    override fun updateCard(card: Card): Card? {
-        TODO("Not yet implemented")
-    }
+    override fun editCoverToCard(cardId: String, cover: Card.Cover): Card? =
+        putDiff(Card::class.java, "cards/$cardId", cover)
 
-    override fun getList(listId: String): TList? {
-        TODO("Not yet implemented")
-    }
+    override fun addMemberToCard(cardId: String, memberId: String): Array<Member>? =
+        post(Array<Member>::class.java, "cards/$cardId/idMembers", pairOf("value", memberId))
 
-    override fun getListCards(listId: String): Array<Card>? {
-        TODO("Not yet implemented")
-    }
+    override fun removeMemberToCard(cardId: String, memberId: String): Array<Member>? =
+        delete(Array<Member>::class.java, "cards/$cardId/idMembers/$memberId")
 
-    override fun deleteList(listId: String) {
-        TODO("Not yet implemented")
-    }
+    override fun updateCard(card: Card): Card? =
+        put(Card::class.java, "cards/${card.id}", card)
 
-    override fun getCheckList(checkListId: String): CheckList? {
-        TODO("Not yet implemented")
-    }
+    override fun getList(listId: String): TList? =
+        get(TList::class.java, "lists/$listId")
 
-    override fun getCardCheckLists(cardId: String): Array<CheckList>? {
-        TODO("Not yet implemented")
-    }
+    override fun getListCards(listId: String): Array<Card>? =
+        get(Array<Card>::class.java, "lists/$listId/cards")
 
-    override fun getCheckItems(checkListId: String): Array<CheckItem>? {
-        TODO("Not yet implemented")
-    }
+    override fun deleteList(listId: String): TList? =
+        put(TList::class.java, "lists/$listId", pairOf("closed", "true"))
 
-    override fun createCheckList(cardId: String, checkList: CheckList): CheckList? {
-        TODO("Not yet implemented")
-    }
+    override fun getCheckList(checkListId: String): CheckList? =
+        get(CheckList::class.java, "checklists/$checkListId")
 
-    override fun createCheckItem(cardId: String, checkItem: CheckItem): CheckItem? {
-        TODO("Not yet implemented")
-    }
+    override fun getCardCheckLists(cardId: String): Array<CheckList>? =
+        get(Array<CheckList>::class.java, "cards/$cardId/checklists")
 
-    override fun getOrganization(organizationId: String): Organization? {
-        TODO("Not yet implemented")
-    }
+    override fun getCheckItems(checkListId: String): Array<CheckItem>? =
+        get(Array<CheckItem>::class.java, "checklists/$checkListId/checkitems")
 
-    override fun getOrganizationBoards(organizationId: String): Array<Board>? {
-        TODO("Not yet implemented")
-    }
+    override fun createCheckList(checkList: CheckList): CheckList? =
+        post(CheckList::class.java, "checklists", checkList)
 
-    override fun getOrganizationMembers(organizationId: String): Array<Member>? {
-        TODO("Not yet implemented")
-    }
+    override fun createCheckItem(cardId: String, checkListId: String, checkItem: CheckItem): CheckItem? =
+        post(CheckItem::class.java, "cards/$cardId/checklist/$checkListId/checkItem", checkItem)
 
-    override fun createOrganization(organization: Organization): Organization? {
-        TODO("Not yet implemented")
-    }
+    override fun getOrganization(organizationId: String): Organization? =
+        get(Organization::class.java, "organizations/$organizationId")
 
-    override fun getLabel(labelId: String): Label? {
-        TODO("Not yet implemented")
-    }
+    override fun getOrganizationBoards(organizationId: String): Array<Board>? =
+        get(Array<Organization>::class.java, "organizations/$organizationId/boards")
 
-    override fun createLabel(label: Label): Label? {
-        TODO("Not yet implemented")
-    }
+    override fun getOrganizationMembers(organizationId: String): Array<Member>? =
+        get(Array<Member>::class.java, "organizations/$organizationId/members")
 
-    override fun updateLabel(label: Label): Label? {
-        TODO("Not yet implemented")
-    }
+    override fun createOrganization(organization: Organization): Organization? =
+        post(Organization::class.java, "organizations", organization)
 
-    override fun deleteLabel(labelId: String) {
-        TODO("Not yet implemented")
+    override fun getLabel(labelId: String): Label? =
+        get(Label::class.java, "labels/$labelId")
+
+    override fun createLabel(label: Label): Label? =
+        post(Label::class.java, "board/${label.bordId}/labels", label)
+
+    override fun updateLabel(label: Label): Label? =
+        put(Label::class.java, "labels/${label.id}", label)
+
+    override fun deleteLabel(labelId: String): Any? =
+        delete(Any::class.java, "labels/$labelId")
+
+    private fun <T : Any> post(
+        type: Type,
+        request: String,
+        file: File,
+        vararg arguments: Pair<String, String>
+    ): T? {
+        val url = getUrl(request, *arguments)
+
+        val post = HttpPost(url)
+
+        val entity = MultipartEntityBuilder.create()
+            .addPart("file", FileBody(file))
+            .addPart("filename", StringBody(file.name, ContentType.TEXT_PLAIN))
+            .build()
+
+        post.entity = entity
+
+        return httpClient.execute(post) res@{
+            val content: String = EntityUtils.toString(it.entity, "UTF-8")
+            println(it.statusLine.statusCode)
+            println(content)
+            if (it.statusLine.statusCode >= 400 || it.statusLine.statusCode < 200) {
+                return@res null
+            }
+            return@res gson.fromJson(content, type)
+        }
     }
 
     private fun <T : Any> post(
@@ -265,7 +284,6 @@ class TrelloApiImpl(private val apiKey: String, private val token: String) : Tre
         vararg arguments: Pair<String, String>
     ): T? {
         return httpClient.execute(HttpPost(getUrl(request, *arguments))) res@{
-            println(it.statusLine.statusCode)
             if (it.statusLine.statusCode >= 400 || it.statusLine.statusCode < 200) {
                 return@res null
             }
@@ -286,7 +304,46 @@ class TrelloApiImpl(private val apiKey: String, private val token: String) : Tre
         post.entity = ByteArrayEntity(gson.toJson(obj, type).toByteArray(), ContentType.APPLICATION_JSON)
 
         return httpClient.execute(post) res@{
-            println(it.statusLine.statusCode)
+            if (it.statusLine.statusCode >= 400 || it.statusLine.statusCode < 200) {
+                return@res null
+            }
+            val content: String = EntityUtils.toString(it.entity, "UTF-8")
+            return@res gson.fromJson(content, type)
+        }
+    }
+
+    private fun <T : Any> put(
+        type: Type,
+        request: String,
+        obj: T,
+        vararg arguments: Pair<String, String>
+    ): T? {
+        val url = getUrl(request, *arguments)
+
+        val put = HttpPut(url)
+        put.entity = ByteArrayEntity(gson.toJson(obj, type).toByteArray(), ContentType.APPLICATION_JSON)
+
+        return httpClient.execute(put) res@{
+            if (it.statusLine.statusCode >= 400 || it.statusLine.statusCode < 200) {
+                return@res null
+            }
+            val content: String = EntityUtils.toString(it.entity, "UTF-8")
+            return@res gson.fromJson(content, type)
+        }
+    }
+
+    private fun <T : Any, R : Any> putDiff(
+        type: Type,
+        request: String,
+        obj: R,
+        vararg arguments: Pair<String, String>
+    ): T? {
+        val url = getUrl(request, *arguments)
+
+        val put = HttpPut(url)
+        put.entity = ByteArrayEntity(gson.toJson(obj, type).toByteArray(), ContentType.APPLICATION_JSON)
+
+        return httpClient.execute(put) res@{
             if (it.statusLine.statusCode >= 400 || it.statusLine.statusCode < 200) {
                 return@res null
             }
@@ -345,6 +402,5 @@ class TrelloApiImpl(private val apiKey: String, private val token: String) : Tre
         val httpClient: HttpClient =
             HttpClientBuilder.create().disableCookieManagement().setUserAgent("TrelloAPI-Java").build()
         val gson: Gson = GsonBuilder().create()
-        val executor: ExecutorService = Executors.newCachedThreadPool()
     }
 }

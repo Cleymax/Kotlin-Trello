@@ -62,11 +62,11 @@ interface TrelloApi {
 
     fun getCard(cardId: String): Card?
 
-    fun getCardActions(cardId: String): Array<Card?>?
+    fun getCardActions(cardId: String): Array<Card>?
 
-    fun getCardAttachments(cardId: String): Array<Attachment?>?
+    fun getCardAttachments(cardId: String): Array<Attachment>?
 
-    fun getCardMembers(cardId: String): Array<Member?>?
+    fun getCardMembers(cardId: String): Array<Member>?
 
     fun getCardAttachment(cardId: String, attachmentId: String): Attachment?
 
@@ -84,13 +84,23 @@ interface TrelloApi {
 
     fun addReactionToComment(cardId: String, unified: String): AddReactionToCommentResult?
 
-    fun updateComment(cardId: String, commentActionId: String, comment: String): Action?
+    fun removeCoverToCard(cardId: String): Card?
 
-    fun addAttachmentToCard(cardId: String, file: File)
+    fun addCoverToCard(cardId: String, attachmentId: String): Card?
 
-    fun addAttachmentToCard(cardId: String, url: String)
+    fun editCoverToCard(cardId: String, cover: Card.Cover): Card?
 
-    fun deleteAttachment(cardId: String, attachmentId: String)
+    fun editComment(commentActionId: String, comment: String): Action?
+
+    fun addAttachmentToCard(cardId: String, file: File): Attachment?
+
+    fun addAttachmentToCard(cardId: String, url: String): Attachment?
+
+    fun addAttachmentToCard(cardId: String, attachment: Attachment): Attachment?
+
+    fun deleteAttachment(cardId: String, attachmentId: String): Any?
+
+    fun editAttachment(cardId: String, attachmentId: String, name: String): Attachment?
 
     fun addMemberToCard(cardId: String, memberId: String): Array<Member>?
 
@@ -102,7 +112,7 @@ interface TrelloApi {
 
     fun getListCards(listId: String): Array<Card>?
 
-    fun deleteList(listId: String)
+    fun deleteList(listId: String): TList?
 
     fun getCheckList(checkListId: String): CheckList?
 
@@ -110,9 +120,9 @@ interface TrelloApi {
 
     fun getCheckItems(checkListId: String): Array<CheckItem>?
 
-    fun createCheckList(cardId: String, checkList: CheckList): CheckList?
+    fun createCheckList(checkList: CheckList): CheckList?
 
-    fun createCheckItem(cardId: String, checkItem: CheckItem): CheckItem?
+    fun createCheckItem(cardId: String, checkListId: String, checkItem: CheckItem): CheckItem?
 
     fun getOrganization(organizationId: String): Organization?
 
@@ -128,7 +138,7 @@ interface TrelloApi {
 
     fun updateLabel(label: Label): Label?
 
-    fun deleteLabel(labelId: String)
+    fun deleteLabel(labelId: String): Any?
 
     fun getMember(): Member?
 
